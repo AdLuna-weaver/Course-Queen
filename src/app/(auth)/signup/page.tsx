@@ -2,25 +2,33 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { login } from '../actions';
+import { signup } from '../actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<{
+    fullName?: string;
     email?: string;
     password?: string;
+    confirmPassword?: string;
   }>({});
 
   const validateForm = (formData: FormData): boolean => {
     const errors: typeof validationErrors = {};
 
+    const fullName = formData.get('fullName') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+    const confirmPassword = formData.get('confirmPassword') as string;
+
+    if (!fullName || fullName.trim().length < 2) {
+      errors.fullName = 'Full name must be at least 2 characters';
+    }
 
     if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       errors.email = 'Please enter a valid email address';
@@ -28,6 +36,10 @@ export default function LoginPage() {
 
     if (!password || password.length < 6) {
       errors.password = 'Password must be at least 6 characters';
+    }
+
+    if (password !== confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
     }
 
     setValidationErrors(errors);
@@ -48,7 +60,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const result = await login(formData);
+      const result = await signup(formData);
       if (result?.error) {
         setError(result.error);
       }
@@ -63,9 +75,9 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center p-4 bg-muted/40">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Welcome Back</CardTitle>
+          <CardTitle>Create an account</CardTitle>
           <CardDescription>
-            Sign in to your Course Planner account
+            Sign up to start creating courses with AI
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -77,6 +89,21 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                name="fullName"
+                type="text"
+                placeholder="John Doe"
+                disabled={isLoading}
+                required
+              />
+              {validationErrors.fullName && (
+                <p className="text-sm text-destructive">{validationErrors.fullName}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -84,7 +111,6 @@ export default function LoginPage() {
                 type="email"
                 placeholder="you@example.com"
                 disabled={isLoading}
-                autoComplete="email"
                 required
               />
               {validationErrors.email && (
@@ -100,7 +126,6 @@ export default function LoginPage() {
                 type="password"
                 placeholder="••••••••"
                 disabled={isLoading}
-                autoComplete="current-password"
                 required
               />
               {validationErrors.password && (
@@ -108,16 +133,31 @@ export default function LoginPage() {
               )}
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                disabled={isLoading}
+                required
+              />
+              {validationErrors.confirmPassword && (
+                <p className="text-sm text-destructive">{validationErrors.confirmPassword}</p>
+              )}
+            </div>
+
             <Button className="w-full" type="submit" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? 'Creating account...' : 'Sign Up'}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
-            Don't have an account?{' '}
-            <Link href="/signup" className="text-primary hover:underline">
-              Sign up
+            Already have an account?{' '}
+            <Link href="/login" className="text-primary hover:underline">
+              Sign in
             </Link>
           </p>
         </CardFooter>

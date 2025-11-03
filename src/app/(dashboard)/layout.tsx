@@ -1,10 +1,19 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { getUser } from '@/app/(auth)/actions';
+import { UserNav } from '@/components/auth/UserNav';
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
@@ -39,7 +48,7 @@ export default function DashboardLayout({
         <header className="flex h-16 items-center justify-between border-b px-6">
           <h1 className="text-xl font-semibold">Dashboard</h1>
           <div className="flex items-center gap-4">
-            {/* User menu will go here */}
+            <UserNav user={user} />
           </div>
         </header>
         <div className="p-6">{children}</div>
