@@ -1,4 +1,4 @@
-import pdf from 'pdf-parse';
+import * as pdfParse from 'pdf-parse';
 
 export interface PDFParseResult {
   text: string;
@@ -14,6 +14,7 @@ export interface PDFParseResult {
 
 export async function parsePDF(buffer: Buffer): Promise<PDFParseResult> {
   try {
+    const pdf = (pdfParse as any).default || pdfParse;
     const data = await pdf(buffer);
 
     return {
