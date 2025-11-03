@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { WizardStepper } from '@/components/wizard/WizardStepper';
 import { Phase1IdeaCapture } from '@/components/wizard/Phase1IdeaCapture';
 import { Phase2ResourceTeam } from '@/components/wizard/Phase2ResourceTeam';
+import { Phase3BrandingStyle } from '@/components/wizard/Phase3BrandingStyle';
 import { getCourse, getWizardPhase, updateWizardPhase } from '../../actions';
 
 interface Course {
@@ -157,10 +158,7 @@ export default function CourseWizardPage({ params }: { params: { id: string } })
         )}
 
         {currentPhase === 3 && (
-          <div className="rounded-md border border-dashed p-12 text-center">
-            <p className="text-muted-foreground">Phase 3: Branding & Style</p>
-            <p className="text-sm text-muted-foreground mt-2">Coming soon...</p>
-          </div>
+          <Phase3BrandingStyle courseId={params.id} />
         )}
 
         {currentPhase === 4 && (
