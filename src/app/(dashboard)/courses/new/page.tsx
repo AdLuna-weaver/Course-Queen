@@ -18,9 +18,8 @@ export default function NewCoursePage() {
       throw new Error(result.error || 'Failed to create course');
     }
 
-    // Redirect to Phase 2 (which we'll build next)
-    // For now, redirect back to courses list
-    router.push(`/courses`);
+    // Redirect to Phase 2
+    router.push(`/courses/${result.courseId}/wizard?phase=2`);
     router.refresh();
   };
 

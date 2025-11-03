@@ -167,19 +167,48 @@ export async function getCourse(courseId: string) {
   return course;
 }
 
-export async function getWizardPhase(courseId: string, phase: number) {
+export async function getWizardPhase(courseId: string, phase?: number) {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  if (phase) {
+    // Get specific phase
+    const { data, error } = await supabase
+      .from('wizard_phases')
+      .select('*')
+      .eq('course_id', courseId)
+      .eq('phase', phase)
+      .single();
+
+    if (error) {
+      return null;
+    }
+
+    return data;
+  }
+
+  // Get all phases and construct wizard state
+  const { data: phases, error } = await supabase
     .from('wizard_phases')
     .select('*')
     .eq('course_id', courseId)
-    .eq('phase', phase)
-    .single();
+    .order('phase', { ascending: true });
 
-  if (error) {
-    return null;
+  if (error || !phases) {
+    return {
+      current_phase: 1,
+      completed_phases: [],
+    };
   }
 
-  return data;
+  const completedPhases = phases.filter(p => p.completed).map(p => p.phase);
+  const currentPhase = Math.max(...completedPhases, 0) + 1;
+
+  return {
+    current_phase: currentPhase > 7 ? 7 : currentPhase,
+    completed_phases: completedPhases,
+    phases: phases.reduce((acc, p) => {
+      acc[`phase_${p.phase}_data`] = p.data;
+      return acc;
+    }, {} as Record<string, any>),
+  };
 }
