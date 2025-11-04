@@ -28,11 +28,11 @@ export async function uploadResource(formData: FormData): Promise<{
     // Verify user owns this course
     const { data: course } = await supabase
       .from('courses')
-      .select('id, creator_id')
+      .select('id, created_by')
       .eq('id', courseId)
       .single();
 
-    if (!course || course.creator_id !== user.id) {
+    if (!course || course.created_by !== user.id) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -102,7 +102,7 @@ export async function deleteResource(resourceId: string): Promise<{
     // Get resource and verify ownership
     const { data: resource, error: fetchError } = await supabase
       .from('resources')
-      .select('*, courses!inner(creator_id)')
+      .select('*, courses!inner(created_by)')
       .eq('id', resourceId)
       .single();
 
@@ -110,7 +110,7 @@ export async function deleteResource(resourceId: string): Promise<{
       return { success: false, error: 'Resource not found' };
     }
 
-    if ((resource as any).courses.creator_id !== user.id) {
+    if ((resource as any).courses.created_by !== user.id) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -174,11 +174,11 @@ export async function addTeamMember(
     // Verify user owns this course
     const { data: course } = await supabase
       .from('courses')
-      .select('id, creator_id')
+      .select('id, created_by')
       .eq('id', courseId)
       .single();
 
-    if (!course || course.creator_id !== user.id) {
+    if (!course || course.created_by !== user.id) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -232,11 +232,11 @@ export async function removeTeamMember(
     // Verify user owns this course
     const { data: course } = await supabase
       .from('courses')
-      .select('id, creator_id')
+      .select('id, created_by')
       .eq('id', courseId)
       .single();
 
-    if (!course || course.creator_id !== user.id) {
+    if (!course || course.created_by !== user.id) {
       return { success: false, error: 'Unauthorized' };
     }
 

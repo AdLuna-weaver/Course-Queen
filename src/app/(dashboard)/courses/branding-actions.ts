@@ -34,11 +34,11 @@ export async function uploadLogo(formData: FormData): Promise<{
     // Verify user owns this course
     const { data: course, error: courseError } = await supabase
       .from('courses')
-      .select('id, creator_id')
+      .select('id, created_by')
       .eq('id', courseId)
       .single();
 
-    if (courseError || !course || course.creator_id !== user.id) {
+    if (courseError || !course || course.created_by !== user.id) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -91,11 +91,11 @@ export async function saveBranding(
     // Verify user owns this course
     const { data: course, error: courseError } = await supabase
       .from('courses')
-      .select('id, creator_id')
+      .select('id, created_by')
       .eq('id', courseId)
       .single();
 
-    if (courseError || !course || course.creator_id !== user.id) {
+    if (courseError || !course || course.created_by !== user.id) {
       return { success: false, error: 'Unauthorized' };
     }
 

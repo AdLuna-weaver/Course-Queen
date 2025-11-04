@@ -27,9 +27,9 @@ export async function POST(
     // Verify user owns this course
     const { data: course, error: courseError } = await supabase
       .from('courses')
-      .select('id, creator_id')
+      .select('id, created_by')
       .eq('id', courseId)
-      .eq('creator_id', user.id)
+      .eq('created_by', user.id)
       .single();
 
     if (courseError || !course) {
