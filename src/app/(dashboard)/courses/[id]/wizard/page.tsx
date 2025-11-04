@@ -12,6 +12,7 @@ import { Phase3BrandingStyle } from '@/components/wizard/Phase3BrandingStyle';
 import { Phase4Outline } from '@/components/wizard/Phase4Outline';
 import { Phase5SMEQuestions } from '@/components/wizard/Phase5SMEQuestions';
 import { Phase6FinalOutline } from '@/components/wizard/Phase6FinalOutline';
+import { Phase7Generation } from '@/components/wizard/Phase7Generation';
 import { getCourse, getWizardPhase, updateWizardPhase } from '../../actions';
 
 interface Course {
@@ -177,10 +178,7 @@ export default function CourseWizardPage({ params }: { params: { id: string } })
         )}
 
         {currentPhase === 7 && (
-          <div className="rounded-md border border-dashed p-12 text-center">
-            <p className="text-muted-foreground">Phase 7: Content Generation</p>
-            <p className="text-sm text-muted-foreground mt-2">Coming soon...</p>
-          </div>
+          <Phase7Generation courseId={params.id} />
         )}
       </div>
     </div>
