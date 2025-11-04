@@ -39,7 +39,6 @@ export async function createCourse(data: CreateCourseData): Promise<CourseRespon
         created_by: user.id,
         company_id: user.user_metadata?.company_id || null,
         status: 'draft',
-        current_phase: 1,
         outline: {
           learningObjectives: data.learningObjectives,
           modules: [],
@@ -124,14 +123,6 @@ export async function updateWizardPhase(
 
     if (error) {
       return { success: false, error: error.message };
-    }
-
-    // Update course current_phase if completed
-    if (completed) {
-      await supabase
-        .from('courses')
-        .update({ current_phase: phase + 1 })
-        .eq('id', courseId);
     }
 
     revalidatePath(`/courses/${courseId}`);
