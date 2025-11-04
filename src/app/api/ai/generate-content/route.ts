@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       .from('courses')
       .select('*')
       .eq('id', courseId)
-      .eq('creator_id', user.id)
+      .eq('created_by', user.id)
       .single();
 
     if (courseError || !course) {

@@ -36,7 +36,7 @@ export async function createCourse(data: CreateCourseData): Promise<CourseRespon
       .insert({
         title: data.title,
         description: data.description,
-        creator_id: user.id,
+        created_by: user.id,
         company_id: user.user_metadata?.company_id || null,
         status: 'draft',
         current_phase: 1,
@@ -101,7 +101,7 @@ export async function updateWizardPhase(
     // Verify user owns this course
     const { data: course, error: courseError } = await supabase
       .from('courses')
-      .select('id, creator_id')
+      .select('id, created_by')
       .eq('id', courseId)
       .single();
 
@@ -109,7 +109,7 @@ export async function updateWizardPhase(
       return { success: false, error: 'Course not found' };
     }
 
-    if (course.creator_id !== user.id) {
+    if (course.created_by !== user.id) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -160,7 +160,7 @@ export async function getCourse(courseId: string) {
   }
 
   // Verify access
-  if (course.creator_id !== user.id) {
+  if (course.created_by !== user.id) {
     redirect('/courses');
   }
 
