@@ -82,6 +82,7 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
         getResources(courseId),
         getTeamMembers(courseId),
       ]);
+      console.log('Loaded team members:', teamData); // Debug log
       setResources(resourcesData);
       setTeamMembers(teamData);
     } catch (err) {
@@ -146,12 +147,15 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
     setError('');
 
     try {
+      console.log('Adding team member:', email, role); // Debug log
       const result = await addTeamMember(courseId, email, role);
+      console.log('Add team member result:', result); // Debug log
 
       if (result.success) {
         setEmail('');
         setRole('');
         await loadData(); // Reload team members
+        console.log('Team members reloaded after add'); // Debug log
       } else {
         setError(result.error || 'Failed to add team member');
       }

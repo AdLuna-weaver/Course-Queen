@@ -267,12 +267,13 @@ export async function getTeamMembers(courseId: string) {
     .from('course_team_members')
     .select('*, profiles!inner(id, email)')
     .eq('course_id', courseId)
-    .order('added_at', { ascending: true});
+    .order('id', { ascending: false });
 
   if (error) {
     console.error('Error fetching team members:', error);
     return [];
   }
 
+  console.log('getTeamMembers result:', data); // Debug log
   return data || [];
 }
