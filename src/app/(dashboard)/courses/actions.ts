@@ -111,7 +111,6 @@ export async function updateWizardPhase(
       return { success: false, error: 'Unauthorized' };
     }
 
-    // Define phase titles and descriptions
     const phaseInfo: Record<number, { title: string; description: string }> = {
       1: { title: 'Course Idea', description: 'Define your course concept' },
       2: { title: 'Resources & Team', description: 'Upload resources and assemble team' },
