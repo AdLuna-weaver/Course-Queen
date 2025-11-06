@@ -28,7 +28,7 @@ export async function uploadResource(formData: FormData): Promise<{
     // Verify user owns this course
     const { data: course } = await supabase
       .from('courses')
-      .select('id, created_by')
+      .select('id, created_by, company_id')
       .eq('id', courseId)
       .single();
 
@@ -62,12 +62,15 @@ export async function uploadResource(formData: FormData): Promise<{
       .from('resources')
       .insert({
         course_id: courseId,
-        name: file.name,
-        type: fileExt || 'unknown',
-        url: publicUrl,
+        company_id: course.company_id,
+        file_name: file.name,
+        file_type: fileExt || 'unknown',
+        file_url: publicUrl,
+        file_size_bytes: file.size,
         uploaded_by: user.id,
+        extraction_status: 'pending',
         metadata: {
-          size: file.size,
+          originalName: file.name,
           contentType: file.type,
         },
       })
@@ -115,7 +118,7 @@ export async function deleteResource(resourceId: string): Promise<{
     }
 
     // Extract file path from URL
-    const urlParts = resource.url.split('/');
+    const urlParts = resource.file_url.split('/');
     const filePath = urlParts.slice(-2).join('/'); // courseId/filename
 
     // Delete from storage
@@ -195,12 +198,11 @@ export async function addTeamMember(
 
     // Add to team
     const { error: insertError } = await supabase
-      .from('course_team')
+      .from('course_team_members')
       .insert({
         course_id: courseId,
         user_id: member.id,
         role,
-        permissions: [],
       });
 
     if (insertError) {
@@ -242,7 +244,7 @@ export async function removeTeamMember(
 
     // Remove from team
     const { error } = await supabase
-      .from('course_team')
+      .from('course_team_members')
       .delete()
       .eq('course_id', courseId)
       .eq('user_id', userId);
@@ -262,7 +264,7 @@ export async function getTeamMembers(courseId: string) {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('course_team')
+    .from('course_team_members')
     .select('*, profiles!inner(id, email)')
     .eq('course_id', courseId)
     .order('added_at', { ascending: true});

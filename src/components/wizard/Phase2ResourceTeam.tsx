@@ -23,13 +23,17 @@ import { updateWizardPhase } from '@/app/(dashboard)/courses/actions';
 
 interface Resource {
   id: string;
-  name: string;
-  type: string;
-  url: string;
+  file_name: string;
+  file_type: string;
+  file_url: string;
+  file_size_bytes: number;
   uploaded_at: string;
-  metadata: {
-    size: number;
-    contentType: string;
+  extraction_status?: string;
+  extracted_text?: string;
+  tags?: string[];
+  metadata?: {
+    originalName?: string;
+    contentType?: string;
   };
 }
 
@@ -297,9 +301,9 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">{resource.name}</p>
+                        <p className="text-sm font-medium truncate">{resource.file_name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {formatFileSize(resource.metadata.size)} • {formatDate(resource.uploaded_at)}
+                          {formatFileSize(resource.file_size_bytes)} • {formatDate(resource.uploaded_at)}
                         </p>
                       </div>
                     </div>
@@ -352,9 +356,10 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="SME">SME (Subject Matter Expert)</SelectItem>
-                    <SelectItem value="Reviewer">Reviewer</SelectItem>
-                    <SelectItem value="Creator">Creator</SelectItem>
+                    <SelectItem value="pm">PM (Project Manager)</SelectItem>
+                    <SelectItem value="sme">SME (Subject Matter Expert)</SelectItem>
+                    <SelectItem value="reviewer">Reviewer</SelectItem>
+                    <SelectItem value="creator">Creator</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
