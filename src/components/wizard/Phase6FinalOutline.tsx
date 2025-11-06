@@ -55,11 +55,22 @@ interface Task {
 }
 
 interface TeamMember {
-  user_id: string;
+  id: string;
+  user_id: string | null;
+  invited_email: string | null;
   role: string;
-  profiles: {
+  invitation_status: string | null;
+  invited_at: string | null;
+  accepted_at: string | null;
+  profiles?: {
+    id: string;
+    email: string;
+  }[] | {
+    id: string;
     email: string;
   };
+  email: string;
+  status: string;
 }
 
 interface Phase6FinalOutlineProps {
@@ -216,8 +227,8 @@ export function Phase6FinalOutline({ courseId }: Phase6FinalOutlineProps) {
           title: `Write ${module.title} content`,
           description: `Create comprehensive content for ${module.title} module including all lessons and examples.`,
           module_reference: module.title,
-          assigned_to: creator?.user_id,
-          assignedToEmail: creator?.profiles.email,
+          assigned_to: creator?.id,
+          assignedToEmail: creator?.email,
           priority: 'High',
           status: 'Todo',
         });
@@ -228,8 +239,8 @@ export function Phase6FinalOutline({ courseId }: Phase6FinalOutlineProps) {
             title: `Review ${module.title} technical accuracy`,
             description: `Review the content for ${module.title} to ensure technical accuracy and industry best practices.`,
             module_reference: module.title,
-            assigned_to: sme.user_id,
-            assignedToEmail: sme.profiles.email,
+            assigned_to: sme.id,
+            assignedToEmail: sme.email,
             priority: 'High',
             status: 'Todo',
           });
@@ -240,8 +251,8 @@ export function Phase6FinalOutline({ courseId }: Phase6FinalOutlineProps) {
           title: `Create assessment questions for ${module.title}`,
           description: `Develop quiz questions and practical exercises for ${module.title}.`,
           module_reference: module.title,
-          assigned_to: creator?.user_id,
-          assignedToEmail: creator?.profiles.email,
+          assigned_to: creator?.id,
+          assignedToEmail: creator?.email,
           priority: 'Medium',
           status: 'Todo',
         });
@@ -254,8 +265,8 @@ export function Phase6FinalOutline({ courseId }: Phase6FinalOutlineProps) {
           title: 'Review final course',
           description: 'Complete final review of entire course content, structure, and assessments.',
           module_reference: 'All modules',
-          assigned_to: reviewer.user_id,
-          assignedToEmail: reviewer.profiles.email,
+          assigned_to: reviewer.id,
+          assignedToEmail: reviewer.email,
           priority: 'High',
           status: 'Todo',
         });
@@ -724,9 +735,9 @@ export function Phase6FinalOutline({ courseId }: Phase6FinalOutlineProps) {
                             <Select
                               value={task.assigned_to || ''}
                               onValueChange={(value) => {
-                                const member = teamMembers.find((m) => m.user_id === value);
+                                const member = teamMembers.find((m) => m.id === value);
                                 updateTask(index, 'assigned_to', value);
-                                updateTask(index, 'assignedToEmail', member?.profiles.email);
+                                updateTask(index, 'assignedToEmail', member?.email);
                               }}
                             >
                               <SelectTrigger>
@@ -734,8 +745,8 @@ export function Phase6FinalOutline({ courseId }: Phase6FinalOutlineProps) {
                               </SelectTrigger>
                               <SelectContent>
                                 {teamMembers.map((member) => (
-                                  <SelectItem key={member.user_id} value={member.user_id}>
-                                    {member.profiles.email} ({member.role})
+                                  <SelectItem key={member.id} value={member.id}>
+                                    {member.email} ({member.role})
                                   </SelectItem>
                                 ))}
                               </SelectContent>

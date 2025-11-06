@@ -248,7 +248,7 @@ export async function addTeamMember(
 
 export async function removeTeamMember(
   courseId: string,
-  userId: string
+  teamMemberId: string
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
   const user = await getUser();
@@ -269,12 +269,12 @@ export async function removeTeamMember(
       return { success: false, error: 'Unauthorized' };
     }
 
-    // Remove from team
+    // Remove from team by team member id
     const { error } = await supabase
       .from('course_team_members')
       .delete()
-      .eq('course_id', courseId)
-      .eq('user_id', userId);
+      .eq('id', teamMemberId)
+      .eq('course_id', courseId);
 
     if (error) {
       return { success: false, error: error.message };
@@ -292,15 +292,22 @@ export async function getTeamMembers(courseId: string) {
 
   const { data, error } = await supabase
     .from('course_team_members')
-    .select('*, profiles!inner(id, email)')
+    .select('id, user_id, invited_email, role, invitation_status, invited_at, accepted_at, profiles(id, email)')
     .eq('course_id', courseId)
-    .order('id', { ascending: false });
+    .order('invited_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching team members:', error);
     return [];
   }
 
-  console.log('getTeamMembers result:', data); // Debug log
-  return data || [];
+  // Transform data to always show email and status
+  return (data || []).map(member => {
+    const profile = Array.isArray(member.profiles) ? member.profiles[0] : member.profiles;
+    return {
+      ...member,
+      email: profile?.email || member.invited_email,
+      status: member.invitation_status || 'invited',
+    };
+  });
 }

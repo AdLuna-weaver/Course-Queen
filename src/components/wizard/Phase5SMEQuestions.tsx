@@ -39,10 +39,22 @@ interface SMEQuestion {
 }
 
 interface SME {
-  user_id: string;
-  profiles: {
+  id: string;
+  user_id: string | null;
+  invited_email: string | null;
+  role: string;
+  invitation_status: string | null;
+  invited_at: string | null;
+  accepted_at: string | null;
+  profiles?: {
+    id: string;
+    email: string;
+  }[] | {
+    id: string;
     email: string;
   };
+  email: string;
+  status: string;
 }
 
 interface Phase5SMEQuestionsProps {
@@ -172,7 +184,7 @@ export function Phase5SMEQuestions({ courseId }: Phase5SMEQuestionsProps) {
       category: 'Technical',
       priority: 'Medium',
       smeId,
-      smeEmail: smeList.find((s) => s.user_id === smeId)?.profiles.email,
+      smeEmail: smeList.find((s) => s.id === smeId)?.email,
     };
     setQuestions([...questions, newQuestion]);
     setEditingQuestionId('new-' + Date.now());
@@ -414,8 +426,8 @@ export function Phase5SMEQuestions({ courseId }: Phase5SMEQuestionsProps) {
               <Label className="text-xs text-muted-foreground mb-2">SMEs:</Label>
               <div className="flex flex-wrap gap-2">
                 {smeList.map((sme) => (
-                  <Badge key={sme.user_id} variant="secondary">
-                    {sme.profiles.email}
+                  <Badge key={sme.id} variant="secondary">
+                    {sme.email}
                   </Badge>
                 ))}
               </div>
@@ -556,17 +568,17 @@ export function Phase5SMEQuestions({ courseId }: Phase5SMEQuestionsProps) {
       {questions.length > 0 && (
         <div className="space-y-6">
           {smeList.map((sme) => {
-            const smeQuestions = getQuestionsBySmE(sme.user_id);
+            const smeQuestions = getQuestionsBySmE(sme.id);
             if (smeQuestions.length === 0) return null;
 
             return (
-              <Card key={sme.user_id}>
+              <Card key={sme.id}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Users className="h-5 w-5" />
-                        {sme.profiles.email}
+                        {sme.email}
                       </CardTitle>
                       <CardDescription>
                         {smeQuestions.length} question{smeQuestions.length !== 1 ? 's' : ''}
@@ -575,7 +587,7 @@ export function Phase5SMEQuestions({ courseId }: Phase5SMEQuestionsProps) {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => addCustomQuestion(sme.user_id)}
+                      onClick={() => addCustomQuestion(sme.id)}
                     >
                       <Plus className="mr-2 h-4 w-4" />
                       Add Question

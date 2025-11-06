@@ -39,12 +39,21 @@ interface Resource {
 
 interface TeamMember {
   id: string;
-  user_id: string;
+  user_id: string | null;
+  invited_email: string | null;
   role: string;
-  profiles: {
+  invitation_status: string | null;
+  invited_at: string | null;
+  accepted_at: string | null;
+  profiles?: {
+    id: string;
+    email: string;
+  }[] | {
     id: string;
     email: string;
   };
+  email: string;
+  status: string;
 }
 
 interface Phase2ResourceTeamProps {
@@ -167,10 +176,10 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
     }
   }
 
-  async function handleRemoveTeamMember(userId: string) {
-    const result = await removeTeamMember(courseId, userId);
+  async function handleRemoveTeamMember(teamMemberId: string) {
+    const result = await removeTeamMember(courseId, teamMemberId);
     if (result.success) {
-      setTeamMembers((prev) => prev.filter((m) => m.user_id !== userId));
+      setTeamMembers((prev) => prev.filter((m) => m.id !== teamMemberId));
     } else {
       setError(result.error || 'Failed to remove team member');
     }
@@ -396,18 +405,24 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">{member.profiles.email}</p>
+                        <p className="text-sm font-medium truncate">{member.email}</p>
                         <p className="text-xs text-muted-foreground">
                           <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                             {member.role}
                           </span>
+                          {member.status === 'invited' && (
+                            <span className="ml-2 text-muted-foreground">⏳ Pending invitation</span>
+                          )}
+                          {member.status === 'accepted' && (
+                            <span className="ml-2 text-green-600">✓ Accepted</span>
+                          )}
                         </p>
                       </div>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleRemoveTeamMember(member.user_id)}
+                      onClick={() => handleRemoveTeamMember(member.id)}
                       className="flex-shrink-0"
                     >
                       <X className="h-4 w-4" />
