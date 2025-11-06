@@ -111,19 +111,6 @@ export async function updateWizardPhase(
       return { success: false, error: 'Unauthorized' };
     }
 
-    // Define phase titles and descriptions
-    const phaseInfo: Record<number, { title: string; description: string }> = {
-      1: { title: 'Course Idea', description: 'Define your course concept' },
-      2: { title: 'Resources & Team', description: 'Upload resources and assemble team' },
-      3: { title: 'Branding & Style', description: 'Set visual identity and design' },
-      4: { title: 'AI Outline', description: 'Generate course structure with AI' },
-      5: { title: 'SME Questions', description: 'Subject matter expert review' },
-      6: { title: 'Final Outline', description: 'Refine and finalize structure' },
-      7: { title: 'Content Generation', description: 'Create course content' },
-    };
-
-    const info = phaseInfo[phase] || { title: `Phase ${phase}`, description: '' };
-
     const phaseInfo: Record<number, { title: string; description: string }> = {
       1: { title: 'Course Idea', description: 'Define your course concept' },
       2: { title: 'Resources & Team', description: 'Upload resources and assemble team' },
@@ -158,6 +145,25 @@ export async function updateWizardPhase(
     return { success: false, error: error.message || 'Failed to update wizard phase' };
   }
 }
+
+export async function getCourse(courseId: string) {
+  const supabase = await createClient();
+  const user = await getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  const { data: course, error } = await supabase
+    .from('courses')
+    .select('*')
+    .eq('id', courseId)
+    .single();
+
+  if (error || !course) {
+    redirect('/courses');
+  }
+
   // Verify access
   if (course.created_by !== user.id) {
     redirect('/courses');

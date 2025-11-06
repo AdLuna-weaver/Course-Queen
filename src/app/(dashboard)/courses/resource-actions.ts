@@ -57,7 +57,7 @@ export async function uploadResource(formData: FormData): Promise<{
       .from('course-resources')
       .getPublicUrl(fileName);
 
-    // Save metadata to database - UPDATED to match actual schema
+    // Save metadata to database
     const { data: resource, error: dbError } = await supabase
       .from('resources')
       .insert({
@@ -118,7 +118,7 @@ export async function deleteResource(resourceId: string): Promise<{
     }
 
     // Extract file path from URL
-    const urlParts = resource.url.split('/');
+    const urlParts = resource.file_url.split('/');
     const filePath = urlParts.slice(-2).join('/'); // courseId/filename
 
     // Delete from storage
@@ -203,7 +203,6 @@ export async function addTeamMember(
         course_id: courseId,
         user_id: member.id,
         role,
-        permissions: [],
       });
 
     if (insertError) {
@@ -268,7 +267,7 @@ export async function getTeamMembers(courseId: string) {
     .from('course_team_members')
     .select('*, profiles!inner(id, email)')
     .eq('course_id', courseId)
-    .order('added_at', { ascending: true });
+    .order('added_at', { ascending: true});
 
   if (error) {
     console.error('Error fetching team members:', error);
