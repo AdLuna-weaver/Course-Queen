@@ -165,7 +165,7 @@ export async function addTeamMember(
   courseId: string,
   email: string,
   role: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; message?: string }> {
   const supabase = await createClient();
   const user = await getUser();
 
@@ -177,7 +177,7 @@ export async function addTeamMember(
     // Verify user owns this course
     const { data: course } = await supabase
       .from('courses')
-      .select('id, created_by')
+      .select('id, created_by, title')
       .eq('id', courseId)
       .single();
 
@@ -185,36 +185,63 @@ export async function addTeamMember(
       return { success: false, error: 'Unauthorized' };
     }
 
-    // Find user by email (from profiles table)
+    // Check if this email is already invited to this course
+    const { data: existing } = await supabase
+      .from('course_team_members')
+      .select('id, invitation_status')
+      .eq('course_id', courseId)
+      .eq('invited_email', email)
+      .single();
+
+    if (existing) {
+      if (existing.invitation_status === 'accepted') {
+        return { success: false, error: 'User is already a team member' };
+      } else {
+        return { success: false, error: 'User already has a pending invitation' };
+      }
+    }
+
+    // Try to find user by email (they might already have an account)
     const { data: member } = await supabase
       .from('profiles')
       .select('id, email')
       .eq('email', email)
       .single();
 
-    if (!member) {
-      return { success: false, error: 'User not found. They must have an account first.' };
-    }
+    // Generate invitation token
+    const invitationToken = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
-    // Add to team
+    // Add to team - works whether user exists or not
     const { error: insertError } = await supabase
       .from('course_team_members')
       .insert({
         course_id: courseId,
-        user_id: member.id,
+        user_id: member?.id || null, // null if user doesn't exist yet
+        invited_email: email,
         role,
+        invitation_status: member?.id ? 'accepted' : 'invited', // Auto-accept if user exists
+        invitation_token: invitationToken,
+        invited_at: new Date().toISOString(),
+        accepted_at: member?.id ? new Date().toISOString() : null,
       });
 
     if (insertError) {
-      if (insertError.code === '23505') {
-        return { success: false, error: 'User is already a team member' };
-      }
+      console.error('Insert error:', insertError);
       return { success: false, error: insertError.message };
     }
 
+    // TODO: Send invitation email here (we'll add this later)
+    // await sendInvitationEmail(email, course.title, invitationToken);
+
     revalidatePath(`/courses/${courseId}`);
-    return { success: true };
+    return {
+      success: true,
+      message: member?.id
+        ? 'User added to team'
+        : 'Invitation sent - user will be added when they sign up'
+    };
   } catch (error: any) {
+    console.error('Unexpected error:', error);
     return { success: false, error: error.message || 'Failed to add team member' };
   }
 }
