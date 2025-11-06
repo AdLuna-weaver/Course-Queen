@@ -40,20 +40,20 @@ interface Resource {
 interface TeamMember {
   id: string;
   user_id: string | null;
-  invited_email: string | null;
+  invited_email: string;
+  email: string;
   role: string;
-  invitation_status: string | null;
-  invited_at: string | null;
-  accepted_at: string | null;
+  invitation_status: string;
+  status: string;
+  invited_at: string;
+  accepted_at?: string | null;
   profiles?: {
     id: string;
     email: string;
   }[] | {
     id: string;
     email: string;
-  };
-  email: string;
-  status: string;
+  } | null;
 }
 
 interface Phase2ResourceTeamProps {
@@ -68,6 +68,7 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Team form state
   const [email, setEmail] = useState('');
@@ -154,17 +155,22 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
 
     setAddingMember(true);
     setError('');
+    setSuccessMessage('');
 
     try {
-      console.log('Adding team member:', email, role); // Debug log
       const result = await addTeamMember(courseId, email, role);
-      console.log('Add team member result:', result); // Debug log
 
       if (result.success) {
         setEmail('');
         setRole('');
-        await loadData(); // Reload team members
-        console.log('Team members reloaded after add'); // Debug log
+        setSuccessMessage(result.message || 'Team member added successfully');
+
+        // Reload team members
+        const updatedMembers = await getTeamMembers(courseId);
+        setTeamMembers(updatedMembers);
+
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccessMessage(''), 3000);
       } else {
         setError(result.error || 'Failed to add team member');
       }
@@ -255,8 +261,14 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
     <div className="space-y-8">
       {/* Error Display */}
       {error && (
-        <div className="rounded-md bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="bg-destructive/15 text-destructive px-4 py-3 rounded-md text-sm">
           {error}
+        </div>
+      )}
+      {/* Success Message */}
+      {successMessage && (
+        <div className="bg-green-500/15 text-green-700 dark:text-green-400 px-4 py-3 rounded-md text-sm">
+          {successMessage}
         </div>
       )}
 
@@ -406,23 +418,23 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
                       <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">{member.email}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                             {member.role}
                           </span>
-                          {member.status === 'invited' && (
-                            <span className="ml-2 text-muted-foreground">⏳ Pending invitation</span>
+                          <span>•</span>
+                          {member.invitation_status === 'accepted' ? (
+                            <span className="text-green-600">✓ Accepted</span>
+                          ) : (
+                            <span className="text-amber-600">⏳ Invited</span>
                           )}
-                          {member.status === 'accepted' && (
-                            <span className="ml-2 text-green-600">✓ Accepted</span>
-                          )}
-                        </p>
+                        </div>
                       </div>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleRemoveTeamMember(member.id)}
+                      onClick={() => handleRemoveTeamMember(member.user_id || member.id)}
                       className="flex-shrink-0"
                     >
                       <X className="h-4 w-4" />
