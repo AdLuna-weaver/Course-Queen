@@ -41,7 +41,6 @@ interface TeamMember {
   id: string;
   user_id: string;
   role: string;
-  invitation_status?: string;
   profiles: {
     id: string;
     email: string;
@@ -152,9 +151,7 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
       if (result.success) {
         setEmail('');
         setRole('');
-        // Force reload of team members
-        const updatedTeamMembers = await getTeamMembers(courseId);
-        setTeamMembers(updatedTeamMembers);
+        await loadData(); // Reload team members
       } else {
         setError(result.error || 'Failed to add team member');
       }
@@ -399,10 +396,6 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
                         <p className="text-xs text-muted-foreground">
                           <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                             {member.role}
-                          </span>
-                          {' • '}
-                          <span className="text-muted-foreground">
-                            {member.invitation_status === 'accepted' ? '✓ Accepted' : '⏳ Invited'}
                           </span>
                         </p>
                       </div>

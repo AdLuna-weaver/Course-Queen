@@ -111,7 +111,10 @@ export async function updateWizardPhase(
       return { success: false, error: 'Unauthorized' };
     }
 
+<<<<<<< HEAD
     // Define phase titles and descriptions
+=======
+>>>>>>> parent of 83adb55 (Merge branch 'claude/course-planner-setup-011CUmK2SMErUh3j1C3ByxEf' of https://github.com/AdLuna-weaver/Course-Queen into claude/course-planner-setup-011CUmK2SMErUh3j1C3ByxEf)
     const phaseInfo: Record<number, { title: string; description: string }> = {
       1: { title: 'Course Idea', description: 'Define your course concept' },
       2: { title: 'Resources & Team', description: 'Upload resources and assemble team' },

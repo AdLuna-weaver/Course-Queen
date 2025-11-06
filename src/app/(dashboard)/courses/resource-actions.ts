@@ -196,14 +196,13 @@ export async function addTeamMember(
       return { success: false, error: 'User not found. They must have an account first.' };
     }
 
-    // Add to team with invitation status
+    // Add to team
     const { error: insertError } = await supabase
       .from('course_team_members')
       .insert({
         course_id: courseId,
         user_id: member.id,
         role,
-        permissions: [],
       });
 
     if (insertError) {
