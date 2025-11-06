@@ -117,8 +117,8 @@ export async function deleteResource(resourceId: string): Promise<{
       return { success: false, error: 'Unauthorized' };
     }
 
-    // Extract file path from URL
-    const urlParts = resource.url.split('/');
+    // Extract file path from URL - UPDATED to use file_url
+    const urlParts = resource.file_url.split('/');
     const filePath = urlParts.slice(-2).join('/'); // courseId/filename
 
     // Delete from storage
@@ -198,7 +198,7 @@ export async function addTeamMember(
 
     // Add to team
     const { error: insertError } = await supabase
-      .from('course_team_members')
+      .from('course_team')
       .insert({
         course_id: courseId,
         user_id: member.id,
@@ -245,7 +245,7 @@ export async function removeTeamMember(
 
     // Remove from team
     const { error } = await supabase
-      .from('course_team_members')
+      .from('course_team')
       .delete()
       .eq('course_id', courseId)
       .eq('user_id', userId);
@@ -265,7 +265,7 @@ export async function getTeamMembers(courseId: string) {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('course_team_members')
+    .from('course_team')
     .select('*, profiles!inner(id, email)')
     .eq('course_id', courseId)
     .order('added_at', { ascending: true });

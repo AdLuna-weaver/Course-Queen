@@ -356,10 +356,9 @@ export function Phase2ResourceTeam({ courseId }: Phase2ResourceTeamProps) {
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pm">PM (Project Manager)</SelectItem>
-                    <SelectItem value="sme">SME (Subject Matter Expert)</SelectItem>
-                    <SelectItem value="reviewer">Reviewer</SelectItem>
-                    <SelectItem value="creator">Creator</SelectItem>
+                    <SelectItem value="SME">SME (Subject Matter Expert)</SelectItem>
+                    <SelectItem value="Reviewer">Reviewer</SelectItem>
+                    <SelectItem value="Creator">Creator</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
