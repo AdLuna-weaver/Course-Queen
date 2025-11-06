@@ -124,18 +124,6 @@ export async function updateWizardPhase(
 
     const info = phaseInfo[phase] || { title: `Phase ${phase}`, description: '' };
 
-    const phaseInfo: Record<number, { title: string; description: string }> = {
-      1: { title: 'Course Idea', description: 'Define your course concept' },
-      2: { title: 'Resources & Team', description: 'Upload resources and assemble team' },
-      3: { title: 'Branding & Style', description: 'Set visual identity and design' },
-      4: { title: 'AI Outline', description: 'Generate course structure with AI' },
-      5: { title: 'SME Questions', description: 'Subject matter expert review' },
-      6: { title: 'Final Outline', description: 'Refine and finalize structure' },
-      7: { title: 'Content Generation', description: 'Create course content' },
-    };
-
-    const info = phaseInfo[phase] || { title: `Phase ${phase}`, description: '' };
-
     const { error } = await supabase.from('wizard_phases').upsert({
       course_id: courseId,
       phase,
